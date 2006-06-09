@@ -1,5 +1,7 @@
 Makefile.PL
 MANIFEST
+INSTALL
+README
 lib/PDF/API2/Simple.pm
 examples/01_barebones.pl
 examples/02_links.pl
