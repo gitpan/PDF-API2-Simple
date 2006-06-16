@@ -40,7 +40,7 @@ the lower-left hand corner. Thus, x still grows to the left, but y grows towards
 
 =cut
 
-$VERSION = '1.0.1';
+$VERSION = '1.0.2';
 
 use strict;
 use PDF::API2;
@@ -988,7 +988,7 @@ sub effective_height {
 
 =head2 current_page
 
-Gets/sets the current page number. It's hard to find a good reason to set this, but it is possible to do so.
+Gets/sets the current page object. It's hard to find a good reason to set this, but it is possible to do so.
 
 =cut
 
@@ -1168,11 +1168,13 @@ Please mail all bug reports, fixes, improvements, and suggestions to bugs -at- r
 
 =head1 SPONSERS AND LICENSE
 
-This project was sponsered in part by L<http://deviatemedia.com>. This project belongs to L<http://redtreesystems.com>, and is placed into the public domain in the hopes that it will be educational and/or useful. Each party asks only that they are referenced, or this section kept in any modification of this module, or derivitive work thereof.
+This project was sponsered in part by deviateMEDIA - L<http://deviatemedia.com>. This project belongs to Red Tree Systems, LLC - L<http://redtreesystems.com>, but is placed into the public domain in the hopes that it will be educational and/or useful. deviateMEDIA and Red Tree Systems, LLC request only that each party are referenced, or this section kept intact with any modification of this module, or derivitive work thereof.
 
 =head1 SEE ALSO
 
 L<PDF::API2>
+
+There is an examples folder with this dist that should help you get started. You may contact pdfapi2simple -AT- redtreesystems _dot_ com for support on an individual or commercial basis.
 
 =cut
 
