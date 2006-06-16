@@ -34,13 +34,13 @@ documentation. This module was written with PDF creation in mind, though it is c
 update existing PDF files with this module.
 
 Take note that PDF coordinates are not quite what you're used to. The coordinate, (0, 0) for instance is at
-the lower-left hand corner. Thus, x still grows to the left, but y grows towards the top.
+the lower-left hand corner. Thus, x still grows to the right, but y grows towards the top.
 
 =head1 METHODS
 
 =cut
 
-$VERSION = '1.0.2';
+$VERSION = '1.0.3';
 
 use strict;
 use PDF::API2;
@@ -1169,6 +1169,10 @@ Please mail all bug reports, fixes, improvements, and suggestions to bugs -at- r
 =head1 SPONSERS AND LICENSE
 
 This project was sponsered in part by deviateMEDIA - L<http://deviatemedia.com>. This project belongs to Red Tree Systems, LLC - L<http://redtreesystems.com>, but is placed into the public domain in the hopes that it will be educational and/or useful. deviateMEDIA and Red Tree Systems, LLC request only that each party are referenced, or this section kept intact with any modification of this module, or derivitive work thereof.
+
+=head1 THANKS
+
+Thanks to Bryan Krone for pointing out our obvious logisitical shortcomings.
 
 =head1 SEE ALSO
 
