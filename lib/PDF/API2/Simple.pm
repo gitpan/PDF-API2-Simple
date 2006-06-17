@@ -40,7 +40,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.0.3';
+$VERSION = '1.0.4';
 
 use strict;
 use PDF::API2;
