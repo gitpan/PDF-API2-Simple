@@ -40,7 +40,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.0.4';
+$VERSION = '1.1.0';
 
 use strict;
 use PDF::API2;
@@ -109,10 +109,8 @@ pdf file you want to create. That is, of course, up to you.
 sub new {
   my ($self, %opts) = @_;
 
-  Carp::croak("file is required") if (!$opts{'file'});
-
   $self = bless {
-		 'file' => $opts{'file'},
+		 'file' => $opts{'file'} || undef,
 		 'width' => $opts{'width'} || 612,
 		 'height' => $opts{'height'} || 792,
 		 'line_height' => $opts{'line_height'} || 10,
@@ -139,6 +137,7 @@ sub new {
 		 '_current_fill_color' => 'black'
 		}, $self;
 
+  $self->{'_pdf'}->mediabox( $self->{'width'}, $self->{'height'} );
   $self->_set_relative_values();
   $self->_reset_x_and_y();
 
@@ -416,17 +415,47 @@ sub set_font {
   }
 }
 
-=head3 save
+=head3 as_string
 
-End the current page, and save the document to the file specified when instaniating the object.
+An alias for the stringify method
+
+=cut
+
+sub as_string { stringify( @_ ); }
+
+=head3 stringify
+
+Ends the current page, and returns the pdf as a string
+
+=cut
+
+sub stringify {
+  my $self = shift;
+
+  $self->end_page();
+  $self->{'_pdf'}->stringify;
+}
+
+sub save_as { save( @_ ); }
+sub saveas { save( @_ ); }
+
+=head3 save [C<file>]
+
+End the current page, and save the document to the file argument, or the file specified when instaniating the object. If not suitable file can be found to save in, a C<Carp::croak> is emitted. Aliases for this method are C<saveas> and C<save_as>.
 
 =cut
 
 sub save {
-  my $self = shift;
+  my ($self, $file) = @_;
+
+  $self->file( $file ) if ($file);
+
+  if ( ! $self->file ) {
+    Carp::croak( "No file specified" );
+  }
 
   $self->end_page();
-  $self->{'_pdf'}->save;
+  $self->{'_pdf'}->saveas( $self->file );
 }
 
 # public methods - layout
@@ -555,8 +584,10 @@ sub text {
   my $autoflow = $opts{'autoflow'} || 'off';
   my $text_obj = $self->_get_text_object_for_current_page( %opts );
   my @words;
+  my $org_x;
+  my $sentance;
 
-  # don't get fancy. just render the shit
+  # don't get fancy. just render.
   if (lc $autoflow eq 'off') {
     $text = $self->_limit_text( $text, $limit ) if ($limit);
     
@@ -565,29 +596,62 @@ sub text {
 
   Carp::croak( "May not use limit when autoflow is on!" ) if ($limit);
 
-  @words = split / /, $text;
+  $org_x = $x;
+  @words = split /\s/, $text;
 
   for (my $i = 0; $i < scalar(@words); $i++) {
     my $word = $words[$i];
+    my $width;
+    my $flush = 0;
 
-    if (($i + 1) < scalar(@words)) {
+    if (($i + 1) <= scalar(@words)) {
       $word .= ' ';
     }
 
-    if (($x + $text_obj->advancewidth( $word )) > $self->effective_width) {
-      $x = $self->margin_left;
+    $width = $text_obj->advancewidth( $word ); 
+
+    if ( $align eq 'center' ) {
+      my $delta = abs($org_x - ($x + ($width / 2)));
+      my ($left, $right) = (($org_x - $delta), ($org_x + $delta));
+
+      $flush = (($left < $self->margin_left) || ($right > $self->width_right));
+    }
+    elsif ( $align eq 'right' ) {
+      $flush = (($x - $width) < $self->margin_left);
+    }
+    else {
+      $flush = (($x + $width) > $self->effective_width);
+    }
+
+    if ( $flush ) {
+      $self->_render_text_at( $text_obj, $sentance, $org_x, $y, $align );
+      $sentance = '';
+
+      $x = $org_x;
       $y -= $self->line_height;
     }
 
     if ($self->_add_page_if_exceeds_bounds( $y )) {
-      $x = $self->x;
+      $x = $org_x;
       $y = $self->y;
 
       $text_obj = $self->_get_text_object_for_current_page( %opts );
     }
 
-    $x += $self->_render_text_at( $text_obj, $word, $x, $y, $align );
+    $sentance .= $word;
+
+    if ( $align eq 'center' ) {
+      $x += ($width / 2);
+    }
+    elsif ( $align eq 'right' ) {
+      $x -= $width;
+    }
+    else {
+      $x += $width;
+    }
   }
+
+  $self->_render_text_at( $text_obj, $sentance, $org_x, $y, $align );
   
   $y -= $self->line_height;
   if (!$self->_add_page_if_exceeds_bounds( $y )) {  
@@ -1173,6 +1237,8 @@ This project was sponsered in part by deviateMEDIA - L<http://deviatemedia.com>.
 =head1 THANKS
 
 Thanks to Bryan Krone for pointing out our obvious logisitical shortcomings.
+
+Thanks to Simon Wistow for uncovering several bugs and offering up code.
 
 =head1 SEE ALSO
 

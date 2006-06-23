@@ -4,13 +4,12 @@ BEGIN { push @INC, '../lib'; }
 
 use PDF::API2::Simple;
 
-my $pdf = PDF::API2::Simple->new( 
-				  file => '01_barebones.pdf'
-				  );
+my $pdf = PDF::API2::Simple->new( );
 
 $pdf->add_font( 'Verdana' );
 $pdf->add_page();
 
+$pdf->text( 'This PDF is printed to STDOUT!' );
 
-$pdf->save();
+print $pdf->stringify();
 
