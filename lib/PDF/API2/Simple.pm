@@ -40,7 +40,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.1.0';
+$VERSION = '1.1.1';
 
 use strict;
 use PDF::API2;
@@ -395,7 +395,10 @@ This method will add a font to be used throughout the PDF. You C<MUST> call this
 sub add_font {
   my ($self, $font_name) = @_;
 
-  $self->fonts->{$font_name} = $self->pdf->corefont($font_name);
+  if ( ! exists $self->fonts->{$font_name} ) {
+    $self->fonts->{$font_name} = $self->pdf->corefont($font_name);
+  }
+
   $self->current_font( $self->fonts->{$font_name} );
 }
 
@@ -1236,9 +1239,11 @@ This project was sponsered in part by deviateMEDIA - L<http://deviatemedia.com>.
 
 =head1 THANKS
 
-Thanks to Bryan Krone for pointing out our obvious logisitical shortcomings.
+Thanks to Bryan Krone for pointing out our documentation shortcomings.
 
 Thanks to Simon Wistow for uncovering several bugs and offering up code.
+
+Thanks to Pradeep N Menon and Alfred Reibenschuh for pointing out optimizaiton issues, and helping to resolve them.
 
 =head1 SEE ALSO
 
