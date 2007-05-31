@@ -28,11 +28,6 @@ PDF::API2::Simple - Simplistic wrapper for the excellent PDF::API2 modules
 
     $pdf->save();
 
-Note that this module aims to be simple, not accurate or efficent, though it is mostly both. I like
-the PDF::API2 modules, but I find, and suspect others do also, that they are difficult to use and lack 
-documentation. This module was written with PDF creation in mind, though it is certainly possible to 
-update existing PDF files with this module.
-
 Take note that PDF coordinates are not quite what you're used to. The coordinate, (0, 0) for instance is at
 the lower-left hand corner. Thus, x still grows to the right, but y grows towards the top.
 
@@ -40,7 +35,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.1.1';
+$VERSION = '1.1.2';
 
 use strict;
 use PDF::API2;
@@ -301,6 +296,39 @@ sub _limit_text {
   return $text;
 }
 
+=head2 open
+
+  PDF::API2::Simple->open(
+              'open_file' => 'my_pdf.pdf',
+              'open_page' => 1,              # Default is 1.
+              # Any other options to new.
+  );
+
+This method opens an existing PDF for editing. You can include any other
+arguments that are valid for C<new> and they will be set in the resulting
+object.
+
+=cut
+
+sub open {
+    my ($self, %opts) = @_;
+
+    die 'Must provide an open_file param for open'
+        unless $opts{'open_file'};
+
+    # Default to 1;
+    my $page_num = exists $opts{open_page} ? $opts{open_page} : 1;
+
+    my $base_pdf = PDF::API2->open($opts{open_file});
+    my $page = $base_pdf->openpage($page_num);
+
+    my $pdf = PDF::API2::Simple->new(%opts);
+    $pdf->pdf($base_pdf);
+    $pdf->current_page($page);
+
+    return $pdf;
+}
+
 # public methods - space management
 # ================================================
 
@@ -390,10 +418,23 @@ These methods help you manage the PDF itself
 
 This method will add a font to be used throughout the PDF. You C<MUST> call this at least once before laying out your PDF. C<font_name> is a font name, such as 'Arial', or 'Verdana'. Appending 'Bold' seems to make the text bold, as in 'VerdanaBold'. Refer to L<PDF::API2> for more details.
 
+You can optionally pass a font object and font size if you have loaded an
+external font.
+
+  my $font_obj = $pdf->pdf->ttfont('new_font.ttf');
+  $pdf->add_font('NewFont', $font_obj, '12');
+
+Refer to L<PDF::API2> for the various font methods, like C<ttfont>, available.
+
 =cut
 
 sub add_font {
-  my ($self, $font_name) = @_;
+  my ($self, $font_name, $font_obj, $font_size) = @_;
+
+  if ( $font_obj ) {
+    $self->current_page->text->font($font_obj, $font_size);
+    $self->fonts->{$font_name} = $font_obj;
+  }
 
   if ( ! exists $self->fonts->{$font_name} ) {
     $self->fonts->{$font_name} = $self->pdf->corefont($font_name);
@@ -1233,17 +1274,19 @@ sub y { # } sub emacs-hack {
 
 Please mail all bug reports, fixes, improvements, and suggestions to bugs -at- redtreesystems -dot- com.
 
-=head1 SPONSERS AND LICENSE
+=head1 PLUG AND LICENSE
 
-This project was sponsered in part by deviateMEDIA - L<http://deviatemedia.com>. This project belongs to Red Tree Systems, LLC - L<http://redtreesystems.com>, but is placed into the public domain in the hopes that it will be educational and/or useful. deviateMEDIA and Red Tree Systems, LLC request only that each party are referenced, or this section kept intact with any modification of this module, or derivitive work thereof.
+This project belongs to Red Tree Systems, LLC - L<http://www.redtreesystems.com>, but is placed into the public domain in the hopes that it will be educational and/or useful. Red Tree Systems, LLC requests that this section be kept intact with any modification of this module, or derivitive work thereof.
 
 =head1 THANKS
 
-Thanks to Bryan Krone for pointing out our documentation shortcomings.
+Thanks to Jim Brandt for the open method, contributing code to add_font, and offering beer.
+
+Thanks to Pradeep N Menon and Alfred Reibenschuh for pointing out optimizaiton issues, and helping to resolve them.
 
 Thanks to Simon Wistow for uncovering several bugs and offering up code.
 
-Thanks to Pradeep N Menon and Alfred Reibenschuh for pointing out optimizaiton issues, and helping to resolve them.
+Thanks to Bryan Krone for pointing out our documentation shortcomings.
 
 =head1 SEE ALSO
 

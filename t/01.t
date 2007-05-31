@@ -1,9 +1,6 @@
-use Test::Simple tests => 2;
+use Test::More tests => 2;
 
-require PDF::API2;
+require_ok (PDF::API2);
 
-ok(1);
+use_ok (PDF::API2::Simple);
 
-use PDF::API2::Simple;
-
-ok(2);
