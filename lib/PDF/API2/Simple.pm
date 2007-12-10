@@ -35,7 +35,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.1.2';
+$VERSION = '1.1.3';
 
 use strict;
 use PDF::API2;
@@ -350,7 +350,7 @@ sub next_line_would_extend_page {
 
 =head3 would_extend_page C<theoretical_y>
 
-Returns a true value if the current C<y> minus C<theoretical_y> would write past the bottom margin.
+Returns a true value if the C<theoretical_y> would write past the bottom margin.
 
 =cut
 
@@ -664,7 +664,7 @@ sub text {
       $flush = (($x - $width) < $self->margin_left);
     }
     else {
-      $flush = (($x + $width) > $self->effective_width);
+      $flush = (($x + $width) > $self->effective_width + $self->margin_left);
     }
 
     if ( $flush ) {
