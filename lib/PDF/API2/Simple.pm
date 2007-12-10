@@ -1280,6 +1280,8 @@ This project belongs to Red Tree Systems, LLC - L<http://www.redtreesystems.com>
 
 =head1 THANKS
 
+Thanks to Jonathan A. Marshall for fixing a long standing margin issue, and pointing out further documentation shortcomings.
+
 Thanks to Jim Brandt for the open method, contributing code to add_font, and offering beer.
 
 Thanks to Pradeep N Menon and Alfred Reibenschuh for pointing out optimizaiton issues, and helping to resolve them.
