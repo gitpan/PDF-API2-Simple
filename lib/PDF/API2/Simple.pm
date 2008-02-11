@@ -35,7 +35,7 @@ the lower-left hand corner. Thus, x still grows to the right, but y grows toward
 
 =cut
 
-$VERSION = '1.1.3';
+$VERSION = '1.1.4';
 
 use strict;
 use PDF::API2;
@@ -108,11 +108,11 @@ sub new {
 		 'file' => $opts{'file'} || undef,
 		 'width' => $opts{'width'} || 612,
 		 'height' => $opts{'height'} || 792,
-		 'line_height' => $opts{'line_height'} || 10,
-		 'margin_left' => $opts{'margin_left'} || 20,
-		 'margin_top' => $opts{'margin_top'} || 20,
-		 'margin_right' => $opts{'margin_right'} || 20,
-		 'margin_bottom' => $opts{'margin_bottom'} || 50,
+		 'line_height' => exists $opts{'line_height'} ? $opts{'line_height'} : 10,
+		 'margin_left' => exists $opts{'margin_left'} ? $opts{'margin_left'} : 20,
+		 'margin_top' => exists $opts{'margin_top'} ? $opts{'margin_top'} : 20,
+		 'margin_right' => exists $opts{'margin_right'} ? $opts{'margin_right'} : 20,
+		 'margin_bottom' => exists $opts{'margin_bottom'} ? $opts{'margin_bottom'} : 50,
 		 'width_right' => 0,
 		 'height_bottom' => 0,
 		 'effective_width' => 0,
@@ -519,8 +519,8 @@ Creates a 25x25 box at C<opts{x}> (or the current C<x>), C<opts{y}> (or the curr
 
 sub popup {
   my ($self, $text, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $annotation = $self->current_page->annotation;
   
   $annotation->rect( $x, $y, $x + 25, $y + 25 );
@@ -569,8 +569,8 @@ This method returns the width of the text.
 
 sub link {
   my ($self, $url, $text, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $limit = $opts{'limit'} || 0;
   my $align = $opts{'align'} || 'left';
   my $text_obj = $self->_get_text_object_for_current_page( %opts );
@@ -621,8 +621,8 @@ If C<autoflow> was B<not> specified, this method returns the width of the text i
 
 sub text {
   my ($self, $text, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $limit = $opts{'limit'} || 0;
   my $align = $opts{'align'} || 'left';
   my $autoflow = $opts{'autoflow'} || 'off';
@@ -725,8 +725,8 @@ Renders an image onto the PDF. The following image types are supported: JPG, TIF
 
 sub image {
   my ($self, $src, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $width = $opts{'width'} || 100;
   my $height = $opts{'height'} || 100;
   my $scale = $opts{'scale'} || 1;
@@ -796,8 +796,8 @@ Renders a line onto the PDF.
 
 sub line {
   my ($self, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $to_x = $opts{'to_x'};
   my $to_y = $opts{'to_y'};
   my $line = $self->current_page->gfx;
@@ -843,8 +843,8 @@ Renders a rectangle onto the PDF. Rectangles are usually drawn specifying two co
 
 sub rect {
   my ($self, %opts) = @_;
-  my $x = $opts{'x'} || $self->x;
-  my $y = $opts{'y'} || $self->y;
+  my $x = exists $opts{'x'} ? $opts{'x'} : $self->x;
+  my $y = exists $opts{'y'} ? $opts{'y'} : $self->y;
   my $to_x = $opts{'to_x'};
   my $to_y = $opts{'to_y'};
   my $stroke = $opts{'stroke'} || 'on';
@@ -977,6 +977,8 @@ sub margin_left {
 
   if (@_) {
     $self->{'margin_left'} = shift;
+    $self->_set_relative_values();                                                                                                                                                 
+    $self->_reset_x_and_y(); 
   }
 
   return $self->{'margin_left'};
@@ -993,6 +995,8 @@ sub margin_top {
 
   if (@_) {
     $self->{'margin_top'} = shift;
+    $self->_set_relative_values();                                                                                                                                                 
+    $self->_reset_x_and_y();
   }
 
   return $self->{'margin_top'};
@@ -1009,6 +1013,7 @@ sub margin_right {
 
   if (@_) {
     $self->{'margin_right'} = shift;
+    $self->_set_relative_values();
   }
 
   return $self->{'margin_right'};
@@ -1025,6 +1030,7 @@ sub margin_bottom {
 
   if (@_) {
     $self->{'margin_bottom'} = shift;
+    $self->_set_relative_values(); 
   }
 
   return $self->{'margin_bottom'};
