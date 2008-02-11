@@ -1286,6 +1286,10 @@ This project belongs to Red Tree Systems, LLC - L<http://www.redtreesystems.com>
 
 =head1 THANKS
 
+Thanks to Jim Brandt for noting that the default values didn't do well with false values.
+
+Thanks to Denis Evdokimov for submitting more margin-fixing goodness.
+
 Thanks to Jonathan A. Marshall for fixing a long standing margin issue, and pointing out further documentation shortcomings.
 
 Thanks to Jim Brandt for the open method, contributing code to add_font, and offering beer.
